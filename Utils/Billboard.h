@@ -1,4 +1,3 @@
-
 #ifndef _BILLBOARD_H_
 #define _BILLBOARD_H_
 
@@ -20,9 +19,8 @@ using OpenEngine::Resources::ResourceManager;
 using OpenEngine::Resources::ITextureResourcePtr;
 using OpenEngine::Geometry::FaceSet;
 using OpenEngine::Math::Vector;
-using OpenEngine::Scene::GeometryNode;
 using OpenEngine::Renderers::OpenGL::TextureLoader;
-
+using OpenEngine::Scene::GeometryNode;
 using OpenEngine::Scene::TransformationNode;
 
 class Billboard {

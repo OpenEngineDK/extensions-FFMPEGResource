@@ -21,9 +21,23 @@
 #include <iostream>
 #include <stdio.h>
 
+namespace OpenEngine {
+namespace Resources {
+
 using OpenEngine::Core::IModule;
 using OpenEngine::Resources::ITextureResource;
 using namespace std;
+
+/**
+ * Movie texture resource plug-in.
+ *
+ * @class MoviePlugin MovieResource.h Resources/MovieResource.h
+ */
+class MoviePlugin : public ITextureResourcePlugin {
+public:
+	MoviePlugin();
+    ITextureResourcePtr CreateResource(string file);
+};
 
 class MovieResource : public IModule, public ITextureResource {
 private:
@@ -72,5 +86,8 @@ public:
 	int GetDepth();
 	unsigned char* GetData();
 };
+
+} //NS Resources
+} //NS OpenEngine
 
 #endif //__MOVIE_RESOURCE__

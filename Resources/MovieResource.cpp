@@ -6,9 +6,22 @@
 #include <Utils/Timer.h>
 #include <math.h>
 
+namespace OpenEngine {
+namespace Resources {
+
 using OpenEngine::Core::Exception;
 using OpenEngine::Utils::Timer;
 using OpenEngine::Utils::Convert;
+
+MoviePlugin::MoviePlugin() {
+    this->AddExtension("mov");
+    this->AddExtension("mp4");
+    this->AddExtension("avi");
+}
+
+ITextureResourcePtr MoviePlugin::CreateResource(string file) {
+  return ITextureResourcePtr(new MovieResource(file, false));
+}
 
 MovieResource::MovieResource(string filename, bool loop) : id(0), filename(filename), loop(loop) {
     pause = false;
@@ -265,3 +278,6 @@ void MovieResource::Pause(bool pause) {
 bool MovieResource::Ended() {
     return (frameNumber >= (pFormatCtx->streams[videoStream]->duration)-1);
 }
+
+} //NS Resources
+} //NS OpenEngine
