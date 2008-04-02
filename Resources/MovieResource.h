@@ -3,19 +3,20 @@
 
 #include <Core/IModule.h>
 #include <Resources/ITextureResource.h>
+#include <Meta/SDL.h>
 
-#ifdef _WIN32
+#if defined (_WIN32) or (__APPLE__)
+extern "C" {
     #include <avcodec.h>
     #include <avformat.h>
     #include <swscale.h>
+}
 #else
     #include <ffmpeg/avcodec.h>
     #include <ffmpeg/avformat.h>
     #include <ffmpeg/swscale.h>
-#endif
-
-#include <Meta/SDL.h>
 #include "thetypes.h"
+#endif
 
 #include <Meta/OpenGL.h>
 #include <iostream>

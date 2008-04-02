@@ -40,7 +40,7 @@
       ffmpeg
   )
 
-  if (NOT APPLE)
+ # if (NOT APPLE)
     find_library(AVUTIL_LIBRARY
       NAMES
         avutil
@@ -50,6 +50,7 @@
         /usr/local/lib
         /opt/local/lib
         /sw/lib
+        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/include
     )
     find_library(AVUTIL_LIBRARY
       NAMES
@@ -57,7 +58,7 @@
       PATHS
         ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
     )
-  endif (NOT APPLE)
+#  endif (NOT APPLE)
 
   find_library(AVCODEC_LIBRARY
     NAMES
@@ -68,6 +69,7 @@
       /usr/local/lib
       /opt/local/lib
       /sw/lib
+        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/include
   )
   find_library(AVCODEC_LIBRARY
     NAMES
@@ -85,6 +87,7 @@
       /usr/local/lib
       /opt/local/lib
       /sw/lib
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
   )
   find_library(AVFORMAT_LIBRARY
     NAMES
@@ -118,6 +121,9 @@
     ${AVFORMAT_LIBRARY}
   )
   endif(WIN32)
+
+#  message("ffmpeg include dir: ${FFMPEG_INCLUDE_DIRS}")
+#  message("ffmpeg lib dir: ${FFMPEG_LIBRARIES}")
 
   if (FFMPEG_INCLUDE_DIRS AND FFMPEG_LIBRARIES)
      set(FFMPEG_FOUND TRUE)
