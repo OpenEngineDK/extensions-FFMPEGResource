@@ -59,6 +59,8 @@ private:
     float movie_spf, timeForTwoFrames;
     double time;
 
+    void BindTexture();
+
 public:
     MovieResource(string filename, bool loop = true);
     ~MovieResource();

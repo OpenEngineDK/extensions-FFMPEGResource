@@ -119,6 +119,7 @@ void MovieResource::Initialize() {
 
     // decode the first frame
     DecodeOneFrame();
+    BindTexture();
 }
 
 void MovieResource::Process(const float dt, const float percent) {
@@ -141,6 +142,7 @@ void MovieResource::Process(const float dt, const float percent) {
                 frameNumber = seek_target;
         }
         DecodeOneFrame();
+	BindTexture();
     }
 }
 
@@ -196,16 +198,7 @@ void MovieResource::DecodeOneFrame() {
         // fill the rest of the power of 2 texture with some color
         //avpicture_layout(&pict,PIX_FMT_RGB32, pCodecCtx->width ,pCodecCtx->height, data, width*height);
 
-        // bind as OpenGL texture
-        //glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, id);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, data);
+	//BindTexture(); //moved to methods
 
         frameNumber++;
     }
@@ -218,12 +211,26 @@ void MovieResource::DecodeOneFrame() {
     av_free_packet(&packet);
 }
 
+void MovieResource::BindTexture() {
+        // bind as OpenGL texture
+        //glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, id);
+        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, data);
+}
+
 void MovieResource::Restart() {
     time = 0.0;
     frameNumber = 0;
     if (av_seek_frame(pFormatCtx,0,0,0) < 0) //seek to the begining of the movie
         throw Exception("could not loop movie: " + filename);
     DecodeOneFrame(); // @todo: this is to avoid the error when decoding the first frame, where frameFinished becomes false
+    //BindTexture();
 }
 
 int MovieResource::GetMovieHeight() {
