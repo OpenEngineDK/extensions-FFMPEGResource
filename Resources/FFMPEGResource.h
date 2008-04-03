@@ -1,8 +1,8 @@
-#ifndef __MOVIE_RESOURCE__
-#define __MOVIE_RESOURCE__
+#ifndef __FFMPEG_RESOURCE__
+#define __FFMPEG_RESOURCE__
 
 #include <Core/IModule.h>
-#include <Resources/ITextureResource.h>
+#include <Resources/IMovieResource.h>
 #include <Resources/ResourcePlugin.h>
 #include <Meta/SDL.h>
 
@@ -16,7 +16,7 @@ extern "C" {
     #include <ffmpeg/avcodec.h>
     #include <ffmpeg/avformat.h>
     #include <ffmpeg/swscale.h>
-#include "thetypes.h"
+    #include "thetypes.h"
 #endif
 
 #include <Meta/OpenGL.h>
@@ -35,18 +35,15 @@ using namespace std;
  *
  * @class MoviePlugin MovieResource.h Resources/MovieResource.h
  */
-class MoviePlugin : public ResourcePlugin<ITextureResource> {
+class FFMPEGPlugin : public ResourcePlugin<IMovieResource> {
 public:
-	MoviePlugin();
-    ITextureResourcePtr CreateResource(string file);
+    FFMPEGPlugin();
+    IMovieResourcePtr CreateResource(string file);
 };
 
-class MovieResource : public IModule, public ITextureResource {
+class FFMPEGResource : public IMovieResource {
 private:
-    //--#ifdef _WIN32
     SwsContext *img_convert_ctx;
-    //--#endif
-
     AVFormatContext *pFormatCtx;
     int             videoStream;
     AVCodecContext  *pCodecCtx;
@@ -61,16 +58,18 @@ private:
     double time;
 
     void BindTexture();
+    void DecodeOneFrame();
 
 public:
-    MovieResource(string filename, bool loop = true);
-    ~MovieResource();
+    FFMPEGResource(string filename, bool loop = true);
+    ~FFMPEGResource();
+
+    // from IMovieResource
     void Pause(bool pause);
     bool Ended();
     void Restart();
-    void DecodeOneFrame();
-	int GetMovieHeight();
-	int GetMovieWidth();
+    int GetMovieHeight();
+    int GetMovieWidth();
 
     // from IModule
     void Initialize();
@@ -79,16 +78,16 @@ public:
     bool IsTypeOf(const std::type_info& inf);
 
     // from IResource
-	void Load();
+    void Load();
     void Unload();
 
     // from TextureResource
     int GetID();
-	void SetID(int id);
-	int GetHeight();
-	int GetWidth();
-	int GetDepth();
-	unsigned char* GetData();
+    void SetID(int id);
+    int GetHeight();
+    int GetWidth();
+    int GetDepth();
+    unsigned char* GetData();
 };
 
 } //NS Resources

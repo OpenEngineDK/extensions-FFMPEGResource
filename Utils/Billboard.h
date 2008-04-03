@@ -10,7 +10,7 @@
 #include <Scene/GeometryNode.h>
 #include <Math/Vector.h>
 #include <string.h>
-#include <Resources/MovieResource.h>
+#include <Resources/IMovieResource.h>
 
 using namespace std;
 using namespace OpenEngine::Geometry;
@@ -65,8 +65,8 @@ public:
         return tnode;
     }
 
-    static TransformationNode* CreateMovieBillboard(MovieResource* movie, float scale) {
-        ITextureResourcePtr texture = ITextureResourcePtr(movie);
+    static TransformationNode* CreateMovieBillboard(IMovieResourcePtr movie, float scale) {
+        ITextureResourcePtr texture = movie;
         unsigned int textureHosisontalSize = movie->GetMovieWidth();
         unsigned int textureVerticalSize = movie->GetMovieHeight();
         float fullxtexcoord = (float)movie->GetMovieWidth()/(float)movie->GetWidth();

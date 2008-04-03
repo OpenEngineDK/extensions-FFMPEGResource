@@ -1,4 +1,4 @@
-#include "MovieResource.h"
+#include "FFMPEGResource.h"
 
 #include <Logging/Logger.h>
 #include <Core/Exceptions.h>
@@ -13,26 +13,27 @@ using OpenEngine::Core::Exception;
 using OpenEngine::Utils::Timer;
 using OpenEngine::Utils::Convert;
 
-MoviePlugin::MoviePlugin() {
+FFMPEGPlugin::FFMPEGPlugin() {
     this->AddExtension("mov");
+    this->AddExtension("mpg");
+    this->AddExtension("mpeg");
     this->AddExtension("mp4");
     this->AddExtension("avi");
+    this->AddExtension("divx");
+    this->AddExtension("xvid");
 }
 
-ITextureResourcePtr MoviePlugin::CreateResource(string file) {
-  return ITextureResourcePtr(new MovieResource(file, false));
+IMovieResourcePtr FFMPEGPlugin::CreateResource(string file) {
+  return IMovieResourcePtr(new FFMPEGResource(file, false));
 }
 
-MovieResource::MovieResource(string filename, bool loop) : id(0), filename(filename), loop(loop) {
+FFMPEGResource::FFMPEGResource(string filename, bool loop) : id(0), filename(filename), loop(loop) {
     pause = false;
     videoStream = -1;
     numberOfChannels = 4;
     bytesPerColor = 3;
     frameNumber = 0;
-
-    //--#ifdef _WIN32
     img_convert_ctx = NULL;
-    //--#endif
 
     // Register all formats and codecs
     av_register_all();
@@ -99,7 +100,7 @@ MovieResource::MovieResource(string filename, bool loop) : id(0), filename(filen
     */
 }
 
-MovieResource::~MovieResource() {
+FFMPEGResource::~FFMPEGResource() {
     // Close the codec
     avcodec_close(pCodecCtx);
 
@@ -109,7 +110,7 @@ MovieResource::~MovieResource() {
     delete[] data;
 }
 
-void MovieResource::Initialize() {
+void FFMPEGResource::Initialize() {
     // if texture id is not set, generate it
     if (id <= 0) {
         GLuint texid;
@@ -122,7 +123,7 @@ void MovieResource::Initialize() {
     BindTexture();
 }
 
-void MovieResource::Process(const float dt, const float percent) {
+void FFMPEGResource::Process(const float dt, const float percent) {
     if (pause || Ended()) return;
     time += dt; // @todo could overflow if to large
 
@@ -146,7 +147,7 @@ void MovieResource::Process(const float dt, const float percent) {
     }
 }
 
-void MovieResource::DecodeOneFrame() {
+void FFMPEGResource::DecodeOneFrame() {
     AVPacket packet;
 
     int readIndex = -1;
@@ -176,9 +177,6 @@ void MovieResource::DecodeOneFrame() {
         pict.linesize[0] = lineSize;
         const int dst_pix_fmt = PIX_FMT_RGB32;
 
-        //convertion of colors from yuv to rgba
-	//--#ifdef _WIN32
-        // from: http://www.ogre3d.org/phpBB2/viewtopic.php?t=29842&postdays=0&postorder=asc&start=25&sid=ce193664e1d3d7c4af509e6f4e2718c6	            
         if (!img_convert_ctx) {
 	        img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height,
                                          pCodecCtx->pix_fmt,
@@ -187,13 +185,6 @@ void MovieResource::DecodeOneFrame() {
                                          SWS_BICUBIC, NULL, NULL, NULL);
         }
         sws_scale(img_convert_ctx, pFrame->data, pFrame->linesize, 0, pCodecCtx->height, pict.data, pict.linesize);
-
-	/*--#else
-        img_convert(&pict, dst_pix_fmt,
-                    (AVPicture *)pFrame, pCodecCtx->pix_fmt, 
-            pCodecCtx->width, pCodecCtx->height);
-	    #endif
-	--*/
 
         // fill the rest of the power of 2 texture with some color
         //avpicture_layout(&pict,PIX_FMT_RGB32, pCodecCtx->width ,pCodecCtx->height, data, width*height);
@@ -205,26 +196,27 @@ void MovieResource::DecodeOneFrame() {
     /*else 
         logger.error << "decoding of frame did not finished" << logger.end;
     */
+
     // Free the YUV frame
     av_free(pFrame);
     // Free the packet that was allocated by av_read_frame
     av_free_packet(&packet);
 }
 
-void MovieResource::BindTexture() {
-        // bind as OpenGL texture
-        //glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, id);
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, data);
+void FFMPEGResource::BindTexture() {
+  // bind as OpenGL texture
+  //glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, id);
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, data);
 }
 
-void MovieResource::Restart() {
+void FFMPEGResource::Restart() {
     time = 0.0;
     frameNumber = 0;
     if (av_seek_frame(pFormatCtx,0,0,0) < 0) //seek to the begining of the movie
@@ -233,56 +225,56 @@ void MovieResource::Restart() {
     //BindTexture();
 }
 
-int MovieResource::GetMovieHeight() {
+int FFMPEGResource::GetMovieHeight() {
     return movieHeight;
 }
 
-int MovieResource::GetMovieWidth() {
+int FFMPEGResource::GetMovieWidth() {
     return movieWidth;
 }
 
-void MovieResource::Deinitialize() {
+void FFMPEGResource::Deinitialize() {
 }
 
-bool MovieResource::IsTypeOf(const std::type_info& inf) {
-    return (typeid(MovieResource) == inf);
+bool FFMPEGResource::IsTypeOf(const std::type_info& inf) {
+    return (typeid(FFMPEGResource) == inf);
 }
 
-int MovieResource::GetID() {
+int FFMPEGResource::GetID() {
     return id;
 }
 
-void MovieResource::SetID(int id) {
+void FFMPEGResource::SetID(int id) {
     this->id = id;
 }
 
-int MovieResource::GetHeight() {
+int FFMPEGResource::GetHeight() {
     return height;
 }
 
-int MovieResource::GetWidth() {
+int FFMPEGResource::GetWidth() {
     return width;
 }
 
-int MovieResource::GetDepth() {
+int FFMPEGResource::GetDepth() {
     return numberOfChannels*8;
 }
 
-unsigned char* MovieResource::GetData() {
+unsigned char* FFMPEGResource::GetData() {
     return data;
 }
 
-void MovieResource::Load() {
+void FFMPEGResource::Load() {
 }
 
-void MovieResource::Unload() {
+void FFMPEGResource::Unload() {
 }
 
-void MovieResource::Pause(bool pause) {
+void FFMPEGResource::Pause(bool pause) {
     this->pause = pause;
 }
 
-bool MovieResource::Ended() {
+bool FFMPEGResource::Ended() {
     return (frameNumber >= (pFormatCtx->streams[videoStream]->duration)-1);
 }
 
