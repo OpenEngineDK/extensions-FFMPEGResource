@@ -1,4 +1,4 @@
-INCLUDE(extensions/MovieResource/FindFFMPEG.cmake)
+INCLUDE(extensions/FFMPEGResource/FindFFMPEG.cmake)
 
 IF (FFMPEG_FOUND)
   INCLUDE_DIRECTORIES(${FFMPEG_INCLUDE_DIRS})
