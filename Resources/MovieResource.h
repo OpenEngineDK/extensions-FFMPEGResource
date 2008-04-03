@@ -3,6 +3,7 @@
 
 #include <Core/IModule.h>
 #include <Resources/ITextureResource.h>
+#include <Resources/ResourcePlugin.h>
 #include <Meta/SDL.h>
 
 #if defined (_WIN32) or (__APPLE__)
@@ -34,7 +35,7 @@ using namespace std;
  *
  * @class MoviePlugin MovieResource.h Resources/MovieResource.h
  */
-class MoviePlugin : public ITextureResourcePlugin {
+class MoviePlugin : public ResourcePlugin<ITextureResource> {
 public:
 	MoviePlugin();
     ITextureResourcePtr CreateResource(string file);

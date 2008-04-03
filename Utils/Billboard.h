@@ -5,7 +5,7 @@
 #include <Resources/ResourceManager.h>
 
 #include <Renderers/OpenGL/TextureLoader.h>
-#include <Resources/TGAResource.h>
+#include <Resources/ITextureResource.h>
 #include <Geometry/FaceSet.h>
 #include <Scene/GeometryNode.h>
 #include <Math/Vector.h>
@@ -52,7 +52,7 @@ public:
         rightside->Scale(scale);
         faces->Add(rightside);
         
-        leftside->texr = rightside->texr = ResourceManager::CreateTexture(textureFile);
+        leftside->texr = rightside->texr = ResourceManager<ITextureResource>::Create(textureFile);
         
         GeometryNode* node = new GeometryNode();
         node->SetFaceSet(faces);
