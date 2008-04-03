@@ -40,6 +40,21 @@
       ffmpeg
   )
 
+  #on osx
+  find_path(FFMPEG_INCLUDE_DIR
+    NAMES
+      libavcodec/avcodec.h
+    PATHS
+      ${_FFMPEGIncDir}
+      /usr/include
+      /usr/local/include
+      /opt/local/include
+      /sw/include
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/include
+    PATH_SUFFIXES
+      ffmpeg
+  )
+
  # if (NOT APPLE)
     find_library(AVUTIL_LIBRARY
       NAMES
@@ -50,7 +65,7 @@
         /usr/local/lib
         /opt/local/lib
         /sw/lib
-        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/include
+        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
     )
     find_library(AVUTIL_LIBRARY
       NAMES
@@ -69,7 +84,7 @@
       /usr/local/lib
       /opt/local/lib
       /sw/lib
-        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/include
+        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
   )
   find_library(AVCODEC_LIBRARY
     NAMES
@@ -122,8 +137,8 @@
   )
   endif(WIN32)
 
-#  message("ffmpeg include dir: ${FFMPEG_INCLUDE_DIRS}")
-#  message("ffmpeg lib dir: ${FFMPEG_LIBRARIES}")
+  #message("ffmpeg include dir: ${FFMPEG_INCLUDE_DIRS}")
+  #message("ffmpeg lib dir: ${FFMPEG_LIBRARIES}")
 
   if (FFMPEG_INCLUDE_DIRS AND FFMPEG_LIBRARIES)
      set(FFMPEG_FOUND TRUE)
