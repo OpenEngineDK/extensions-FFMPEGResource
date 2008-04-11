@@ -58,7 +58,7 @@ private:
     int id;
     string filename;
     unsigned char* data;
-    bool loop, pause;
+    bool loop, pause, loaded;
     unsigned int numberOfChannels, bytesPerColor, height, width, movieHeight, movieWidth, frameNumber, lineSize;
     float movie_spf, timeForTwoFrames;
     double time;
