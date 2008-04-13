@@ -49,17 +49,17 @@ public:
 
 class FFMPEGResource : public IMovieResource {
 private:
-    SwsContext *img_convert_ctx;
-    AVFormatContext *pFormatCtx;
-    int             videoStream;
-    AVCodecContext  *pCodecCtx;
-    AVCodec         *pCodec;
-
-    int id;
-    string filename;
+    SwsContext* img_convert_ctx;
+    AVFormatContext* pFormatCtx;
+    AVCodecContext* pCodecCtx;
+    AVCodec* pCodec;
     unsigned char* data;
+
+    int id, videoStream;
+    string filename;
     bool loop, pause, loaded;
-    unsigned int numberOfChannels, bytesPerColor, height, width, movieHeight, movieWidth, frameNumber, lineSize;
+    unsigned int numberOfChannels, bytesPerColor, lineSize;
+    unsigned int height, width, movieHeight, movieWidth, frameNumber;
     float movie_spf, timeForTwoFrames;
     double time;
 
