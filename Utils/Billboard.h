@@ -52,7 +52,9 @@ public:
         rightside->Scale(scale);
         faces->Add(rightside);
         
-        leftside->texr = rightside->texr = ResourceManager<ITextureResource>::Create(textureFile);
+        MaterialPtr m = MaterialPtr(new Material());
+	m->texr = ResourceManager<ITextureResource>::Create(textureFile);
+	leftside->mat = rightside->mat = m;
         
         GeometryNode* node = new GeometryNode();
         node->SetFaceSet(faces);
@@ -66,7 +68,6 @@ public:
     }
 
     static TransformationNode* CreateMovieBillboard(IMovieResourcePtr movie, float scale) {
-        ITextureResourcePtr texture = movie;
         unsigned int textureHosisontalSize = movie->GetMovieWidth();
         unsigned int textureVerticalSize = movie->GetMovieHeight();
         float fullxtexcoord = (float)movie->GetMovieWidth()/(float)movie->GetWidth();
@@ -109,7 +110,8 @@ public:
         rightside->Scale(scale);
         faces->Add(rightside);
 
-        leftside->texr = rightside->texr = texture;
+        MaterialPtr m = leftside->mat = rightside->mat = MaterialPtr(new Material());
+	m->texr = movie;
 
         GeometryNode* node = new GeometryNode();
         node->SetFaceSet(faces);

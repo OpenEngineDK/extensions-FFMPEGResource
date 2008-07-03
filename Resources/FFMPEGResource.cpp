@@ -112,7 +112,7 @@ void FFMPEGResource::DecodeOneFrame() {
         const int dst_pix_fmt = PIX_FMT_RGB32;
 
         if (!img_convert_ctx) {
-	        img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height,
+	    img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height,
                                          pCodecCtx->pix_fmt,
                                          pCodecCtx->width, pCodecCtx->height,
 						                 dst_pix_fmt,
@@ -124,6 +124,8 @@ void FFMPEGResource::DecodeOneFrame() {
         //avpicture_layout(&pict,PIX_FMT_RGB32, pCodecCtx->width ,pCodecCtx->height, data, width*height);
 
 	//BindTexture(); //moved to methods
+
+	//ReverseVertecally();
 
         frameNumber++;
 
@@ -140,7 +142,16 @@ void FFMPEGResource::DecodeOneFrame() {
     // Free the packet that was allocated by av_read_frame
     av_free_packet(&packet);
 }
-
+/*
+void FFMPEGResource::ReverseVertecally() {
+      //reverse line pointers
+       for (int i = 0; i < image->h/2; i++) {
+             unsigned char *l = image->line[i];
+             image->line[i] = image->line[image->h - i - 1];
+             image->line[image->h - i - 1] = l;
+       }
+}
+*/
 void FFMPEGResource::BindTexture() {
   // bind as OpenGL texture
   //glEnable(GL_TEXTURE_2D);
@@ -259,7 +270,7 @@ void FFMPEGResource::Load() {
     width = (two<<widthPowerOfTwo);
 
     lineSize = width*numberOfChannels;
-    data = new unsigned char[width*height*bytesPerColor*numberOfChannels];
+    data = new unsigned char[height*lineSize*bytesPerColor];
 
     timeForTwoFrames = 2 * movie_spf;
 

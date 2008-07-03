@@ -84,8 +84,9 @@ public:
     bool IsTypeOf(const std::type_info& inf);
 
     // from IResource
-    void Load();
-    void Unload();
+    virtual void Load();
+    virtual void Unload();
+    //virtual void ReverseVertecally();
 
     // from TextureResource
     int GetID();
