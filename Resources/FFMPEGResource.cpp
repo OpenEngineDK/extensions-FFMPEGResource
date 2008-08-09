@@ -93,7 +93,7 @@ void FFMPEGResource::DecodeOneFrame() {
         else
             break;
         if (countTryes > pFormatCtx->nb_streams)
-	  throw Exception("could not read frame, in file: " + filename + " tried " + Convert::int2string(countTryes) + " times");
+	  throw Exception("could not read frame, in file: " + filename + " tried " + Convert::ToString(countTryes) + " times");
     }
 
     // Allocate video frame
