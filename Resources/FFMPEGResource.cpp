@@ -43,7 +43,7 @@ FFMPEGResource::~FFMPEGResource() {
   Unload();
 }
 
-void FFMPEGResource::Initialize() {
+void FFMPEGResource::Handle(InitializeEventArg arg) {
     // if texture id is not set, generate it
     if (id <= 0) {
         GLuint texid;
@@ -57,7 +57,13 @@ void FFMPEGResource::Initialize() {
     BindTexture();
 }
 
-void FFMPEGResource::Process(const float dt, const float percent) {
+void FFMPEGResource::Handle(DeinitializeEventArg arg) {
+    Unload();
+}
+
+void FFMPEGResource::Handle(ProcessEventArg arg) {
+    float dt = arg.approx / 1000.0;
+
     if (pause || Ended()) return;
     time += dt; // @todo could overflow if to large
 
@@ -181,14 +187,6 @@ int FFMPEGResource::GetMovieHeight() {
 
 int FFMPEGResource::GetMovieWidth() {
     return movieWidth;
-}
-
-void FFMPEGResource::Deinitialize() {
-  Unload();
-}
-
-bool FFMPEGResource::IsTypeOf(const std::type_info& inf) {
-    return (typeid(FFMPEGResource) == inf);
 }
 
 int FFMPEGResource::GetID() {

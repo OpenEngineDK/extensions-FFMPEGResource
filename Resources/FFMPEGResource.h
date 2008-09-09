@@ -1,6 +1,7 @@
 #ifndef __FFMPEG_RESOURCE__
 #define __FFMPEG_RESOURCE__
 
+#include <Core/EngineEvents.h>
 #include <Core/IModule.h>
 #include <Resources/IMovieResource.h>
 #include <Resources/ResourcePlugin.h>
@@ -32,8 +33,8 @@ extern "C" {
 namespace OpenEngine {
 namespace Resources {
 
-using OpenEngine::Core::IModule;
 using OpenEngine::Resources::ITextureResource;
+using namespace OpenEngine::Core;
 using namespace std;
 
 /**
@@ -78,10 +79,9 @@ public:
     int GetMovieWidth();
 
     // from IModule
-    void Initialize();
-    void Deinitialize();
-    void Process(const float dt, const float percent);
-    bool IsTypeOf(const std::type_info& inf);
+    void Handle(InitializeEventArg);
+    void Handle(DeinitializeEventArg);
+    void Handle(ProcessEventArg);
 
     // from IResource
     virtual void Load();
