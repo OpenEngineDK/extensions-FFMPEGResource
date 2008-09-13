@@ -1,7 +1,7 @@
 #include "FFMPEGResource.h"
 
-#include <Logging/Logger.h>
 #include <Core/Exceptions.h>
+#include <Logging/Logger.h>
 #include <Utils/Convert.h>
 #include <Utils/Timer.h>
 #include <math.h>
@@ -24,10 +24,11 @@ FFMPEGPlugin::FFMPEGPlugin() {
 }
 
 IMovieResourcePtr FFMPEGPlugin::CreateResource(string file) {
-  return IMovieResourcePtr(new FFMPEGResource(file, false));
+    return FFMPEGResource::Create(file, false);
 }
 
-FFMPEGResource::FFMPEGResource(string filename, bool loop) : id(0), filename(filename), loop(loop) {
+FFMPEGResource::FFMPEGResource(string filename, bool loop)
+    : id(0), filename(filename), loop(loop) {
     pause = false;
     videoStream = -1;
     numberOfChannels = 4;
@@ -39,22 +40,21 @@ FFMPEGResource::FFMPEGResource(string filename, bool loop) : id(0), filename(fil
     Load();
 }
 
+IMovieResourcePtr FFMPEGResource::Create(string filename, bool loop) {
+    FFMPEGResourcePtr ptr(new FFMPEGResource(filename, loop));
+    ptr->weak_this = ptr;
+    return ptr;
+}
+
 FFMPEGResource::~FFMPEGResource() {
   Unload();
 }
 
 void FFMPEGResource::Handle(InitializeEventArg arg) {
-    // if texture id is not set, generate it
-    if (id <= 0) {
-        GLuint texid;
-        glGenTextures(1, &texid);
-        SetID(texid);
-    }
-
     // decode the first frame
     Restart();
     DecodeOneFrame();
-    BindTexture();
+    RebindTexture();
 }
 
 void FFMPEGResource::Handle(DeinitializeEventArg arg) {
@@ -68,10 +68,14 @@ void FFMPEGResource::Handle(ProcessEventArg arg) {
     time += dt; // @todo could overflow if to large
 
     float movieTime;
-    while (time > (movieTime = frameNumber * movie_spf) ) { // decode all frames up to this point in time
-        if (time > movieTime + timeForTwoFrames) { // if hardware is to slow to decode all the frames skip some
+    // decode all frames up to this point in time
+    while (time > (movieTime = frameNumber * movie_spf) ) {
+        // if hardware is to slow to decode all the frames skip some
+        if (time > movieTime + timeForTwoFrames) {
             int64_t seek_target = (int64_t)(time / movie_spf);
-            if (pFormatCtx->streams[videoStream]->duration <= seek_target) // check not to seek outside the video
+
+            // check not to seek outside the video
+            if (pFormatCtx->streams[videoStream]->duration <= seek_target)
                 seek_target = pFormatCtx->streams[videoStream]->duration-1;
 
             //logger.warning << "hardware is to slow, skipping frames in video: " << filename << logger.end;
@@ -83,8 +87,9 @@ void FFMPEGResource::Handle(ProcessEventArg arg) {
                 frameNumber = seek_target;
         }
         DecodeOneFrame();
-	BindTexture();
     }
+    
+    RebindTexture();
 }
 
 void FFMPEGResource::DecodeOneFrame() {
@@ -129,7 +134,7 @@ void FFMPEGResource::DecodeOneFrame() {
         // fill the rest of the power of 2 texture with some color
         //avpicture_layout(&pict,PIX_FMT_RGB32, pCodecCtx->width ,pCodecCtx->height, data, width*height);
 
-	//BindTexture(); //moved to methods
+	//RebindTexture(); //moved to methods
 
 	//ReverseVertecally();
 
@@ -158,17 +163,9 @@ void FFMPEGResource::ReverseVertecally() {
        }
 }
 */
-void FFMPEGResource::BindTexture() {
-  // bind as OpenGL texture
-  //glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, id);
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0,GL_BGRA, GL_UNSIGNED_BYTE, data);
+void FFMPEGResource::RebindTexture() {
+    changedEvent
+        .Notify(TextureChangedEventArg(ITextureResourcePtr(weak_this)));
 }
 
 void FFMPEGResource::Restart() {
@@ -178,7 +175,7 @@ void FFMPEGResource::Restart() {
     if (av_seek_frame(pFormatCtx,0,0,0) < 0) //seek to the begining of the movie
         throw Exception("could not loop movie: " + filename);
     DecodeOneFrame(); // @todo: this is to avoid the error when decoding the first frame, where frameFinished becomes false
-    //BindTexture();
+    //RebindTexture();
 }
 
 int FFMPEGResource::GetMovieHeight() {
@@ -294,7 +291,7 @@ void FFMPEGResource::Unload() {
   delete [] data;
   data = NULL;
   //todo: release gl id
-  id = -1;
+  id = 0;
   loaded = false;
 }
 

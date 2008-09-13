@@ -5,28 +5,11 @@
 #include <Core/IModule.h>
 #include <Resources/IMovieResource.h>
 #include <Resources/ResourcePlugin.h>
-#include <Meta/SDL.h>
 
-#ifdef _WIN32
-    #include <avcodec.h>
-    #include <avformat.h>
-    #include <swscale.h>
-#else
-#ifdef __APPLE__
-extern "C" {
-    #include <libavcodec/avcodec.h>
-    #include <libavformat/avformat.h>
-    #include <libswscale/swscale.h>
-}
-#else
-    #include <ffmpeg/avcodec.h>
-    #include <ffmpeg/avformat.h>
-    #include <ffmpeg/swscale.h>
-    #include "thetypes.h"
-#endif
-#endif
+#include <Meta/FFMPEG.h>
 
-#include <Meta/OpenGL.h>
+#include <boost/serialization/weak_ptr.hpp>
+
 #include <iostream>
 #include <stdio.h>
 
@@ -36,6 +19,13 @@ namespace Resources {
 using OpenEngine::Resources::ITextureResource;
 using namespace OpenEngine::Core;
 using namespace std;
+
+class FFMPEGResource;
+
+/**
+ * Texture resource smart pointer.
+ */
+typedef boost::shared_ptr<FFMPEGResource> FFMPEGResourcePtr;
 
 /**
  * Movie texture resource plug-in.
@@ -64,11 +54,16 @@ private:
     float movie_spf, timeForTwoFrames;
     double time;
 
-    void BindTexture();
+    void RebindTexture();
     void DecodeOneFrame();
 
-public:
+    boost::weak_ptr<FFMPEGResource> weak_this;
     FFMPEGResource(string filename, bool loop = true);
+    FFMPEGResource(const FFMPEGResource& res);
+    FFMPEGResource& operator=(const FFMPEGResource& res);
+
+public:
+    static IMovieResourcePtr Create(string filename, bool loop = true);
     ~FFMPEGResource();
 
     // from IMovieResource
