@@ -178,11 +178,11 @@ void FFMPEGResource::Restart() {
     //RebindTexture();
 }
 
-int FFMPEGResource::GetMovieHeight() {
+unsigned int FFMPEGResource::GetMovieHeight() {
     return movieHeight;
 }
 
-int FFMPEGResource::GetMovieWidth() {
+unsigned int FFMPEGResource::GetMovieWidth() {
     return movieWidth;
 }
 
@@ -194,20 +194,24 @@ void FFMPEGResource::SetID(int id) {
     this->id = id;
 }
 
-int FFMPEGResource::GetHeight() {
+unsigned int FFMPEGResource::GetHeight() {
     return height;
 }
 
-int FFMPEGResource::GetWidth() {
+unsigned int FFMPEGResource::GetWidth() {
     return width;
 }
 
-int FFMPEGResource::GetDepth() {
+unsigned int FFMPEGResource::GetDepth() {
     return numberOfChannels*8;
 }
 
 unsigned char* FFMPEGResource::GetData() {
     return data;
+}
+
+ColorFormat FFMPEGResource::GetColorFormat() {
+    return BGRA;
 }
 
 void FFMPEGResource::Load() {

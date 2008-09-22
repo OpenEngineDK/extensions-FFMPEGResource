@@ -70,13 +70,14 @@ public:
     void Pause(bool pause);
     bool Ended();
     void Restart();
-    int GetMovieHeight();
-    int GetMovieWidth();
+    unsigned int GetMovieHeight();
+    unsigned int GetMovieWidth();
+    ColorFormat GetColorFormat();
 
     // from IModule
-    void Handle(InitializeEventArg);
-    void Handle(DeinitializeEventArg);
-    void Handle(ProcessEventArg);
+    virtual void Handle(InitializeEventArg);
+    virtual void Handle(DeinitializeEventArg);
+    virtual void Handle(ProcessEventArg);
 
     // from IResource
     virtual void Load();
@@ -86,9 +87,9 @@ public:
     // from TextureResource
     int GetID();
     void SetID(int id);
-    int GetHeight();
-    int GetWidth();
-    int GetDepth();
+    unsigned int GetHeight();
+    unsigned int GetWidth();
+    unsigned int GetDepth();
     unsigned char* GetData();
 };
 

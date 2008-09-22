@@ -1,6 +1,8 @@
 SET( EXTENSION_NAME "Extensions_FFMPEGResource")
 
 ADD_LIBRARY( ${EXTENSION_NAME}
+  Resources/IMovieResource.h
+  Resources/FFMPEGResource.h
   Resources/FFMPEGResource.cpp
 )
 

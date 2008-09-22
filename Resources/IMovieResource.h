@@ -16,14 +16,14 @@
 namespace OpenEngine {
 namespace Resources {
 
-using OpenEngine::Core::IModule;
+using namespace OpenEngine::Core;
 
 /**
  * Movie resource interface.
  *
  * @class IMovieResource IMovieResource.h Resources/IMovieResource.h
  */
-class IMovieResource : public IModule, public ITextureResource {
+class IMovieResource : public virtual IModule, public virtual ITextureResource {
 public:
 
     /**
@@ -48,14 +48,14 @@ public:
      *
      * @return height in pixels
      */
-    virtual int GetMovieHeight() = 0;
+    virtual unsigned int GetMovieHeight() = 0;
 
     /**
      * Get the original width of the movie
      *
      * @return width in pixels
      */
-    virtual int GetMovieWidth() = 0;	
+    virtual unsigned int GetMovieWidth() = 0;	
 };
 
 /**
