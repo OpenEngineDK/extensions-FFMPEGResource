@@ -63,7 +63,7 @@ private:
     FFMPEGResource& operator=(const FFMPEGResource& res);
 
 public:
-    static IMovieResourcePtr Create(string filename, bool loop = true);
+    static FFMPEGResourcePtr Create(string filename, bool loop = true);
     ~FFMPEGResource();
 
     // from IMovieResource

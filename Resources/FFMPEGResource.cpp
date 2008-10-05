@@ -38,27 +38,42 @@ FFMPEGResource::FFMPEGResource(string filename, bool loop)
     loaded = false;
 
     Load();
+    // decode the first frame
+    Restart();
+    DecodeOneFrame();
+    //RebindTexture();
 }
 
-IMovieResourcePtr FFMPEGResource::Create(string filename, bool loop) {
+FFMPEGResourcePtr FFMPEGResource::Create(string filename, bool loop) {
     FFMPEGResourcePtr ptr(new FFMPEGResource(filename, loop));
     ptr->weak_this = ptr;
     return ptr;
 }
 
 FFMPEGResource::~FFMPEGResource() {
-  Unload();
+    Handle(DeinitializeEventArg());
 }
 
 void FFMPEGResource::Handle(InitializeEventArg arg) {
-    // decode the first frame
-    Restart();
-    DecodeOneFrame();
     RebindTexture();
 }
 
 void FFMPEGResource::Handle(DeinitializeEventArg arg) {
-    Unload();
+  if(!loaded) return;
+
+  sws_freeContext(img_convert_ctx);
+  av_close_input_file(pFormatCtx);
+  avcodec_close(pCodecCtx);
+
+    //AVCodec   *
+  //av_free(pCodec);
+
+
+  delete [] data;
+  data = NULL;
+  //todo: release gl id
+  id = 0;
+  loaded = false;
 }
 
 void FFMPEGResource::Handle(ProcessEventArg arg) {
@@ -215,7 +230,7 @@ ColorFormat FFMPEGResource::GetColorFormat() {
 }
 
 void FFMPEGResource::Load() {
-    if(loaded) Unload();
+    if(loaded) return;
 
     // Register all formats and codecs
     av_register_all();
@@ -282,21 +297,6 @@ void FFMPEGResource::Load() {
 }
 
 void FFMPEGResource::Unload() {
-  if(!loaded) return;
-
-  sws_freeContext(img_convert_ctx);
-  av_close_input_file(pFormatCtx);
-  avcodec_close(pCodecCtx);
-
-    //AVCodec   *
-  //av_free(pCodec);
-
-
-  delete [] data;
-  data = NULL;
-  //todo: release gl id
-  id = 0;
-  loaded = false;
 }
 
 void FFMPEGResource::Pause(bool pause) {
