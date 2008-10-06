@@ -55,7 +55,6 @@
       ffmpeg
   )
 
- # if (NOT APPLE)
     find_library(AVUTIL_LIBRARY
       NAMES
         avutil
@@ -65,6 +64,7 @@
         /usr/local/lib
         /opt/local/lib
         /sw/lib
+        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib/static
         ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
     )
     find_library(AVUTIL_LIBRARY
@@ -73,7 +73,6 @@
       PATHS
         ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
     )
-#  endif (NOT APPLE)
 
   find_library(AVCODEC_LIBRARY
     NAMES
@@ -84,7 +83,8 @@
       /usr/local/lib
       /opt/local/lib
       /sw/lib
-        ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib/static
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
   )
   find_library(AVCODEC_LIBRARY
     NAMES
@@ -102,6 +102,7 @@
       /usr/local/lib
       /opt/local/lib
       /sw/lib
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib/static
       ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
   )
   find_library(AVFORMAT_LIBRARY
@@ -115,6 +116,14 @@
     NAMES
       swscale-0
     PATHS
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
+  )
+
+  find_library(SWSCALE_LIBRARY
+    NAMES
+      swscale
+    PATHS
+      ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib/static
       ${PROJECT_SOURCE_DIR}/libraries/ffmpeg/lib
   )
 
@@ -134,7 +143,8 @@
     ${AVUTIL_LIBRARY}
     ${AVCODEC_LIBRARY}
     ${AVFORMAT_LIBRARY}
-  )
+    ${SWSCALE_LIBRARY}
+      )
   endif(WIN32)
 
   #message("ffmpeg include dir: ${FFMPEG_INCLUDE_DIRS}")
