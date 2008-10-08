@@ -4,7 +4,7 @@
 #include <Core/EngineEvents.h>
 #include <Core/IModule.h>
 #include <Resources/IMovieResource.h>
-#include <Resources/ResourcePlugin.h>
+#include <Resources/IResourcePlugin.h>
 
 #include <Meta/FFMPEG.h>
 
@@ -32,7 +32,7 @@ typedef boost::shared_ptr<FFMPEGResource> FFMPEGResourcePtr;
  *
  * @class MoviePlugin MovieResource.h Resources/MovieResource.h
  */
-class FFMPEGPlugin : public ResourcePlugin<IMovieResource> {
+class FFMPEGPlugin : public IResourcePlugin<IMovieResource> {
 public:
     FFMPEGPlugin();
     IMovieResourcePtr CreateResource(string file);
